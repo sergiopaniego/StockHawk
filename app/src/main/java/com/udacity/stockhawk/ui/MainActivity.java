@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -24,9 +25,17 @@ import com.udacity.stockhawk.data.Contract;
 import com.udacity.stockhawk.data.PrefUtils;
 import com.udacity.stockhawk.sync.QuoteSyncJob;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URL;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
+import yahoofinance.Stock;
+import yahoofinance.YahooFinance;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener,
@@ -43,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @BindView(R.id.error)
     TextView error;
     private StockAdapter adapter;
+    private boolean exists;
 
     @Override
     public void onClick(String symbol) {
@@ -118,16 +128,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     void addStock(String symbol) {
         if (symbol != null && !symbol.isEmpty()) {
-
-            if (networkUp()) {
-                swipeRefreshLayout.setRefreshing(true);
-            } else {
-                String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-            }
-
-            PrefUtils.addStock(this, symbol);
-            QuoteSyncJob.syncImmediately(this);
+            new StockQueryTask().execute(symbol);
         }
     }
 
@@ -185,5 +186,41 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public class StockQueryTask extends AsyncTask<String, Void, Boolean> {
+
+        private String symbol;
+
+        @Override
+        protected Boolean doInBackground(String... urls) {
+            symbol = urls[0];
+            try {
+                Stock stock = YahooFinance.get(symbol);
+                exists = stock.getName() != null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                PrefUtils.addStock(MainActivity.this, symbol);
+            }
+            return exists;
+        }
+
+
+        @Override
+        protected void onPostExecute(Boolean exists) {
+            if (exists) {
+                if (networkUp()) {
+                    swipeRefreshLayout.setRefreshing(true);
+                } else {
+                    String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
+                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                }
+                PrefUtils.addStock(MainActivity.this, symbol);
+                QuoteSyncJob.syncImmediately(MainActivity.this);
+            }
+            if (!exists) {
+                Toast.makeText(MainActivity.this, "STOCK DOESN'T EXISTS", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }
