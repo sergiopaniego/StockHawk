@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onClick(String symbol) {
-        Timber.d("Symbol clicked: %s", symbol);
+        Timber.d(getString(R.string.symbol_clicked), symbol);
     }
 
     @Override
@@ -123,12 +123,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     public void button(@SuppressWarnings("UnusedParameters") View view) {
-        new AddStockDialog().show(getFragmentManager(), "StockDialogFragment");
+        new AddStockDialog().show(getFragmentManager(), getString(R.string.stock_dialog_fragment));
     }
 
     void addStock(String symbol) {
         if (symbol != null && !symbol.isEmpty()) {
-            new StockQueryTask().execute(symbol);
+
+            if (networkUp()) {
+                swipeRefreshLayout.setRefreshing(true);
+            } else {
+                String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            }
+
+            PrefUtils.addStock(this, symbol);
+            QuoteSyncJob.syncImmediately(this);
         }
     }
 
@@ -186,41 +195,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public class StockQueryTask extends AsyncTask<String, Void, Boolean> {
-
-        private String symbol;
-
-        @Override
-        protected Boolean doInBackground(String... urls) {
-            symbol = urls[0];
-            try {
-                Stock stock = YahooFinance.get(symbol);
-                exists = stock.getName() != null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                PrefUtils.addStock(MainActivity.this, symbol);
-            }
-            return exists;
-        }
-
-
-        @Override
-        protected void onPostExecute(Boolean exists) {
-            if (exists) {
-                if (networkUp()) {
-                    swipeRefreshLayout.setRefreshing(true);
-                } else {
-                    String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
-                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
-                }
-                PrefUtils.addStock(MainActivity.this, symbol);
-                QuoteSyncJob.syncImmediately(MainActivity.this);
-            }
-            if (!exists) {
-                Toast.makeText(MainActivity.this, "STOCK DOESN'T EXISTS", Toast.LENGTH_LONG).show();
-            }
-        }
     }
 }
