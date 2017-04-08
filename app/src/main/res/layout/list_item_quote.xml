@@ -15,13 +15,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="start|center_vertical"
-        tools:text="GOOG" android:onClick="openDetails"/>
+        tools:text="GOOG"/>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="end" android:onClick="openDetails">
+        android:gravity="end">
 
         <TextView
             android:id="@+id/price"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10sp"
-            tools:text="1000.00" android:onClick="openDetails"/>
+            tools:text="1000.00"/>
 
         <TextView
             android:id="@+id/change"
@@ -39,6 +39,6 @@
             android:background="@drawable/percent_change_pill_green"
             android:paddingStart="3dp"
             android:paddingEnd="3dp"
-            tools:text="100%" android:onClick="openDetails"/>
+            tools:text="100%"/>
     </LinearLayout>
 </LinearLayout>

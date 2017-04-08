@@ -39,6 +39,8 @@ import timber.log.Timber;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
+
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener,
         StockAdapter.StockAdapterOnClickHandler {
@@ -59,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onClick(String symbol) {
         Timber.d(getString(R.string.symbol_clicked), symbol);
+        Intent intent = new Intent(this, ChartActivity.class);
+        intent.putExtra(EXTRA_MESSAGE, symbol);
+        startActivity(intent);
     }
 
     @Override
@@ -197,10 +202,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void openDetails(View view){
-        Intent intent = new Intent(this, ChartActivity.class);
-        startActivity(intent);
     }
 }
