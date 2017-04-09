@@ -45,8 +45,15 @@
     <string name="intent_handled">Intent handled</string>
     <string name="uri_unknown">Unknown URI:</string>
     <string name="title_activity_chart">ChartActivity</string>
+    <string name="stock_example" translatable="false">GOOG</string>
+    <string name="number_example" translatable="false">1000</string>
+    <string name="percent_example" translatable="false">100%</string>
+    <string name="empty_widget" translatable="false">Empty</string>
+    <string name="symbol_key" translatable="false">symbol</string>
+    <string name="error_message">Error Message</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="widget_stocks_title">StockHawk Widget</string>
 
 </resources>

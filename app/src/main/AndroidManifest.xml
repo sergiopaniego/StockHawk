@@ -40,7 +40,25 @@
 
         <activity
             android:name=".ui.ChartActivity"
-            android:label="@string/title_activity_chart"></activity>
+            android:label="@string/title_activity_chart"
+            android:screenOrientation="portrait">
+        </activity>
+        <!-- Widget -->
+        <receiver android:name=".widget.StocksWidgetProvider"
+            android:label="@string/widget_stocks_title"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.udacity.stockhawk.ACTION_DATA_UPDATED" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_stocks" />
+        </receiver>
+        <service android:name=".widget.StockWidgetService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
     </application>
 
 </manifest>
